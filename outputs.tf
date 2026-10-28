@@ -47,3 +47,18 @@ output "route53_zone_id" {
   description = "ID of the private Route53 zone."
   value       = aws_route53_zone.internal.zone_id
 }
+
+output "praefect_nlb_dns_name" {
+  description = "DNS name of the internal Praefect NLB."
+  value       = aws_lb.praefect.dns_name
+}
+
+output "praefect_nlb_endpoint" {
+  description = "Single Praefect endpoint for GitLab Rails, Shell, and EKS, host and port."
+  value       = "praefect.${var.private_dns_zone}:2305"
+}
+
+output "praefect_nlb_arn" {
+  description = "ARN of the internal Praefect NLB."
+  value       = aws_lb.praefect.arn
+}

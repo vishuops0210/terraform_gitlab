@@ -36,3 +36,18 @@ resource "aws_route53_record" "praefect" {
   ttl     = 300
   records = [aws_instance.praefect[count.index].private_ip]
 }
+
+# Single Praefect endpoint, via the internal NLB.
+# GitLab Rails, Shell, and EKS should use praefect.internal:2305,
+# not praefect-1.internal or praefect-2.internal directly.
+resource "aws_route53_record" "praefect_nlb" {
+  zone_id = aws_route53_zone.internal.zone_id
+  name    = "praefect.${var.private_dns_zone}"
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.praefect.dns_name
+    zone_id                = aws_lb.praefect.zone_id
+    evaluate_target_health = true
+  }
+}

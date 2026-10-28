@@ -12,6 +12,7 @@ This is infra only. GitLab and Praefect software is installed by Ansible after a
 - Praefect VMs: count from `praefect_count`, default 2
 - RDS PostgreSQL, database `praefect_production`, private only, Praefect security group only
 - Private Route53 zone `internal`, with `gitaly-1.internal`, `gitaly-2.internal`, `praefect-1.internal`, and so on, generated from the VMs
+- Internal Network Load Balancer in front of Praefect, TCP 2305, with cross-zone load balancing. Single endpoint: `praefect.internal:2305`. Target group attachments follow `praefect_count` automatically.
 - IAM role for SSM Session Manager on all VMs. No SSH ingress by default.
 
 This RDS is for Praefect only. The main GitLab Rails RDS is phase 2 and is not in this code.
@@ -32,7 +33,7 @@ terraform apply tfplan
 terraform output
 ```
 
-Check the plan carefully before apply: it should show 1 VPC, subnets, 2 Gitaly VMs plus 2 data volumes, 2 Praefect VMs, 1 RDS, 1 Route53 zone, and 4 Route53 records.
+Check the plan carefully before apply: it should show 1 VPC, subnets, 2 Gitaly VMs plus 2 data volumes, 2 Praefect VMs, 1 RDS, 1 Route53 zone, 4 Route53 records for individual VMs plus 1 alias record for `praefect.internal`, and 1 internal NLB with its target group and listener.
 
 ## Terragrunt, for environment management
 
