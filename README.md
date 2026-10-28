@@ -29,7 +29,7 @@ This RDS is for Praefect only. The main GitLab Rails RDS is phase 2 and is not i
 
 Terragrunt and Terraform binaries are not installed on the assistant VM, so install both on your machine before running these commands.
 
-First, create the state S3 bucket and DynamoDB lock table once, then set their names in the root `terragrunt.hcl` or via `TG_STATE_BUCKET` and `TG_LOCK_TABLE`. Then, from one environment folder only:
+First, create the state S3 bucket once, then set its name in the root `terragrunt.hcl` or via `TG_STATE_BUCKET`. No DynamoDB lock table is needed: locking uses native S3 locking, `use_lockfile = true`, which writes a `.tflock` file in the same bucket. This needs Terraform 1.11 or later, or OpenTofu 1.10 or later. Then, from one environment folder only:
 
 ```
 cd live/lab

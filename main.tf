@@ -8,7 +8,7 @@
 # Do not run this module directly, and do not add a local backend here.
 
 terraform {
-  required_version = ">= 1.5.0"
+  required_version = ">= 1.11.0"
 
   required_providers {
     aws = {
