@@ -1,6 +1,7 @@
 # Security groups, least privilege between tiers.
-# No SSH ingress anywhere by default. Access is via SSM Session Manager.
-# Set var.key_name and add a 22 rule only if you explicitly need SSH.
+# SSH ingress is off by default. Set var.key_name to an existing AWS key pair
+# and var.ssh_allowed_cidrs to allow SSH, for lab use the VPC CIDR only.
+# SSM Session Manager still works with or without SSH.
 
 resource "aws_security_group" "gitaly" {
   name        = "${var.project}-gitaly"
@@ -14,6 +15,17 @@ resource "aws_security_group" "gitaly" {
     to_port         = 8075
     protocol        = "tcp"
     security_groups = [aws_security_group.praefect.id]
+  }
+
+  dynamic "ingress" {
+    for_each = length(var.ssh_allowed_cidrs) > 0 ? [1] : []
+    content {
+      description = "SSH from allowed CIDRs only"
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      cidr_blocks = var.ssh_allowed_cidrs
+    }
   }
 
   egress {
@@ -41,6 +53,17 @@ resource "aws_security_group" "praefect" {
     to_port     = 2305
     protocol    = "tcp"
     cidr_blocks = [var.vpc_cidr]
+  }
+
+  dynamic "ingress" {
+    for_each = length(var.ssh_allowed_cidrs) > 0 ? [1] : []
+    content {
+      description = "SSH from allowed CIDRs only"
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      cidr_blocks = var.ssh_allowed_cidrs
+    }
   }
 
   egress {
