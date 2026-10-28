@@ -91,9 +91,15 @@ variable "gitaly_data_volume_size" {
 }
 
 variable "key_name" {
-  description = "Optional EC2 key pair name for SSH. Leave null for SSM Session Manager only, which is the recommended path."
+  description = "EC2 key pair name for SSH, already existing in AWS. Set to default to use the existing default.pem key pair. Leave null for SSM Session Manager only."
   type        = string
   default     = null
+}
+
+variable "ssh_allowed_cidrs" {
+  description = "CIDR blocks allowed to SSH to Gitaly and Praefect on port 22. Leave empty for no SSH ingress. For lab, use the VPC CIDR so only the in-VPC controller can SSH, never 0.0.0.0/0."
+  type        = list(string)
+  default     = []
 }
 
 # RDS, Praefect database only. This is NOT the main GitLab Rails database.
@@ -111,9 +117,9 @@ variable "rds_allocated_storage" {
 }
 
 variable "rds_engine_version" {
-  description = "PostgreSQL engine version for the Praefect database."
+  description = "PostgreSQL engine version for the Praefect database. GitLab 19 requires PostgreSQL 17, minimum and maximum 17.x, so use major version 17 only and let AWS pick the latest minor available in ap-south-1. Do not use 16 with GitLab 19, and do not use 18 as the supported range for GitLab 19."
   type        = string
-  default     = "16.4"
+  default     = "17"
 }
 
 variable "rds_multi_az" {

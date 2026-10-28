@@ -23,10 +23,17 @@ inputs = {
   gitaly_count   = 2
   praefect_count = 2
 
-  gitaly_instance_type   = "c7i-flex.large"
-  praefect_instance_type = "c7i-flex.large"
+  gitaly_instance_type   = "t3.large"
+  praefect_instance_type = "t3.large"
 
   gitaly_data_volume_size = 100
+
+  # SSH with the existing default.pem key pair. This key pair must already
+  # exist in AWS ap-south-1 with this exact name, otherwise apply will fail
+  # and SSH with default.pem will not work. SSH is allowed only from inside
+  # the VPC, so the in-VPC controller can SSH, not the internet.
+  key_name          = "default"
+  ssh_allowed_cidrs = ["10.10.0.0/16"]
 
   rds_instance_class = "db.t4g.micro"
   rds_multi_az       = false
