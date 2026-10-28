@@ -23,8 +23,8 @@ inputs = {
   gitaly_count   = 2
   praefect_count = 2
 
-  gitaly_instance_type   = "t3.large"
-  praefect_instance_type = "t3.large"
+  gitaly_instance_type   = "c7i-flex.large"
+  praefect_instance_type = "c7i-flex.large"
 
   gitaly_data_volume_size = 100
 
