@@ -32,6 +32,11 @@ inputs = {
   rds_instance_class = "db.t3.small"
   rds_multi_az       = true
 
+  # Production RDS, not Free Tier: gp3 storage, 7 day backups.
+  rds_storage_type           = "gp3"
+  rds_backup_retention_period = 7
+  rds_allocated_storage      = 20
+
   # Never hardcode this. Set RDS_PASSWORD in your shell before apply.
   rds_password = get_env("RDS_PASSWORD", "")
 }

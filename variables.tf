@@ -99,9 +99,9 @@ variable "key_name" {
 # RDS, Praefect database only. This is NOT the main GitLab Rails database.
 # That second RDS comes in phase 2.
 variable "rds_instance_class" {
-  description = "RDS instance class for the Praefect database."
+  description = "RDS instance class for the Praefect database. db.t4g.micro is the Free Tier Graviton class for lab."
   type        = string
-  default     = "db.t3.micro"
+  default     = "db.t4g.micro"
 }
 
 variable "rds_allocated_storage" {
@@ -120,6 +120,18 @@ variable "rds_multi_az" {
   description = "Enable Multi-AZ for the Praefect RDS. Keep false for lab cost, set true for production."
   type        = bool
   default     = false
+}
+
+variable "rds_storage_type" {
+  description = "RDS storage type. Use gp2 for AWS Free Tier, gp3 for production performance."
+  type        = string
+  default     = "gp2"
+}
+
+variable "rds_backup_retention_period" {
+  description = "RDS automated backup retention in days. Use 0 for AWS Free Tier, free tier restricts backup retention to 0. Use 7 for production."
+  type        = number
+  default     = 0
 }
 
 variable "rds_username" {
