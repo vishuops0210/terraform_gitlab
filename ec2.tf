@@ -1,6 +1,6 @@
 # EC2 VMs, Gitaly and Praefect.
 # Count is driven by variables, so scaling is: change gitaly_count or
-# praefect_count in terraform.tfvars, then terraform apply.
+# praefect_count in the environment terragrunt.hcl, then terragrunt apply from that environment folder.
 # VMs are spread round-robin across private subnets, so across AZs.
 # No public IP. Access via SSM Session Manager, using the IAM role below.
 

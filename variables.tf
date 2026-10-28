@@ -34,7 +34,7 @@ variable "private_dns_zone" {
   default     = "internal"
 }
 
-# Scaling: change these numbers and run terraform apply.
+# Scaling: change these numbers in the environment terragrunt.hcl, then run terragrunt apply from that environment folder.
 # Raising a count adds new VMs at the end. Lowering a count destroys
 # the highest numbered VMs first. Check Praefect replication before
 # scaling Gitaly down, because that node's data volume is also deleted.
@@ -129,7 +129,7 @@ variable "rds_username" {
 }
 
 variable "rds_password" {
-  description = "Master password for the Praefect RDS. Set in terraform.tfvars or TF_VAR_rds_password, never in git."
+  description = "Master password for the Praefect RDS. Set from Terragrunt inputs via the RDS_PASSWORD environment variable, never in git."
   type        = string
   sensitive   = true
 }
