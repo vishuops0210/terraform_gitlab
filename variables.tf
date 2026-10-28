@@ -141,9 +141,9 @@ variable "rds_backup_retention_period" {
 }
 
 variable "rds_username" {
-  description = "Master username for the Praefect RDS."
+  description = "Master username for the Praefect RDS. Use postgres, the PostgreSQL default, so it does not conflict with the Ansible Praefect service user praefect. Master postgres creates service praefect, membership grant and revoke then work as in the manual lab."
   type        = string
-  default     = "praefect"
+  default     = "postgres"
 }
 
 variable "rds_password" {
