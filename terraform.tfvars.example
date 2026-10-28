@@ -1,0 +1,18 @@
+# Copy this to terraform.tfvars and fill in the password only.
+# terraform.tfvars is gitignored and must never be committed.
+# Example for scaling: change gitaly_count to 3, 4, or 5 and run apply.
+
+aws_region  = "ap-south-1"
+project     = "gitlab-hybrid"
+environment = "lab"
+
+gitaly_count   = 2
+praefect_count = 2
+
+gitaly_instance_type   = "t3.large"
+praefect_instance_type = "t3.large"
+
+gitaly_data_volume_size = 100
+
+rds_instance_class = "db.t3.micro"
+rds_password       = "CHANGE-ME-USE-A-STRONG-PASSWORD"
