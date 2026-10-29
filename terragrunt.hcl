@@ -14,7 +14,7 @@ remote_state {
   backend = "s3"
 
   config = {
-    bucket       = get_env("TG_STATE_BUCKET", "CHANGE-ME-gitlab-hybrid-tfstate")
+    bucket       = get_env("TG_STATE_BUCKET", "gitlab-hybrid-tfstate-962424860737")
     key          = "${path_relative_to_include()}/terraform.tfstate"
     region       = "ap-south-1"
     encrypt      = true

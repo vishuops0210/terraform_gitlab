@@ -18,13 +18,13 @@ inputs = {
   project     = "gitlab-hybrid"
   environment = "lab"
 
-  availability_zones = ["ap-south-1a", "ap-south-1b"]
+  availability_zones = ["ap-south-1a", "ap-south-1b", "ap-south-1c"]
 
-  gitaly_count   = 2
-  praefect_count = 2
+  gitaly_count   = 3
+  praefect_count = 3
 
   gitaly_instance_type   = "c7i-flex.large"
-  praefect_instance_type = "c7i-flex.large"
+  praefect_instance_type = "t8i.small"
 
   # Lab NAT: single NAT, for cost. Prod sets this to true for one NAT per AZ.
   nat_gateway_per_az = false
