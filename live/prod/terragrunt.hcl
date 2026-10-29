@@ -29,6 +29,10 @@ inputs = {
 
   gitaly_data_volume_size = 200
 
+  # Prod NAT: one NAT gateway, one EIP, and one private route table per AZ.
+  # With 3 AZs, this creates 3 NAT gateways, not 1.
+  nat_gateway_per_az = true
+
   rds_instance_class = "db.t3.small"
   rds_multi_az       = true
 

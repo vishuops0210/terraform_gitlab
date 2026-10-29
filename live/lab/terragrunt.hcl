@@ -26,6 +26,9 @@ inputs = {
   gitaly_instance_type   = "c7i-flex.large"
   praefect_instance_type = "c7i-flex.large"
 
+  # Lab NAT: single NAT, for cost. Prod sets this to true for one NAT per AZ.
+  nat_gateway_per_az = false
+
   gitaly_data_volume_size = 100
 
   # SSH with the existing default.pem key pair. This key pair must already

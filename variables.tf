@@ -28,6 +28,12 @@ variable "availability_zones" {
   default     = ["ap-south-1a", "ap-south-1b"]
 }
 
+variable "nat_gateway_per_az" {
+  description = "NAT gateway mode. False means one NAT gateway in the first AZ, for lab cost. True means one NAT gateway, one EIP, and one private route table per AZ, for production HA. Prod with 3 AZs creates 3 NAT gateways."
+  type        = bool
+  default     = false
+}
+
 variable "private_dns_zone" {
   description = "Private Route53 zone name for internal hostnames."
   type        = string

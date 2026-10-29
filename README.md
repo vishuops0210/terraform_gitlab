@@ -9,7 +9,7 @@ This repo is Terragrunt only. Do not run Terraform directly from the repo root, 
 ## What it creates
 
 - VPC 10.10.0.0/16, ap-south-1, with public, private, and data subnets per AZ
-- 1 NAT gateway in the first AZ, for lab cost. Production should use one per AZ.
+- NAT mode by `nat_gateway_per_az`: lab false means 1 NAT gateway in the first AZ, for cost. Prod true means one NAT gateway, one EIP, and one private route table per AZ, so 3 NAT gateways for 3 AZs.
 - Gitaly VMs: count from `gitaly_count`, default 2, each with a separate encrypted EBS data volume on /dev/sdf
 - Praefect VMs: count from `praefect_count`, default 2
 - RDS PostgreSQL, database `praefect_production`, private only, Praefect security group only
