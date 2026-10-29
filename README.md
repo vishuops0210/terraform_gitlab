@@ -1,8 +1,61 @@
-# GitLab hybrid, Terraform phase 1
+# GitLab hybrid, Terraform phase 1 and phase 2 EKS
 
-Provisions, in order: VPC, subnets, Gitaly VMs, Praefect VMs, RDS for Praefect, private Route53 zone, internal NLB for Praefect.
+Provisions, in order: VPC, subnets, Gitaly VMs, Praefect VMs, RDS for Praefect, private Route53 zone, internal NLB for Praefect, plus, when EKS is enabled, EKS cluster and node groups, S3 buckets for GitLab, Rails RDS, and Redis.
 
-This is infra only. GitLab and Praefect software is installed by Ansible after apply, using the Terragrunt outputs as inventory.
+This is infra only. GitLab and Praefect software is installed by Ansible after apply, using the Terragrunt outputs as inventory. EKS software (GitLab chart, ALB controller, External Secrets) is installed by Helm after EKS apply, see EKS section below.
+
+## EKS, phase 2
+
+Enabled by `eks_enabled`. Lab: true, app node group 2 nodes, CI node group 1 node, both `c7i-flex.large`. Prod: false for now.
+
+What Terragrunt creates for EKS:
+- EKS cluster 1.32, private nodes, public endpoint on for demo kubectl access
+- App node group: label `workload=gitlab-app`, no taint, for webservice, Sidekiq, toolbox, runner manager
+- CI node group: label `workload=gitlab-ci`, taint `gitlab-ci=true:NoSchedule`, for runner job pods only
+- OIDC provider, and IRSA roles for EBS CSI, AWS Load Balancer Controller, External Secrets, GitLab Rails S3, GitLab Toolbox S3, and runner cache S3
+- EKS addons: VPC CNI, CoreDNS, kube-proxy, EBS CSI driver
+- S3 buckets: artifacts, lfs, uploads, packages, mr-diffs, terraform-state, ci-secure-files, backups, restore-tmp, runner-cache. No registry bucket, registry is disabled in values.
+- Rails RDS, Postgres 17, database `gitlabhq_production`, user `gitlab`, password from `RAILS_DB_PASSWORD`
+- Redis, ElastiCache, TLS on, auth token from `REDIS_AUTH_TOKEN`
+
+What Terragrunt does NOT create for EKS:
+- ALB controller pod itself. Terragrunt creates only its IRSA role and policy. The controller is installed by Helm after the cluster is up, see below.
+- External Secrets Operator pod, GitLab chart, Ingress manifest, StorageClass, or Kubernetes secrets. Those are kubectl or Helm after apply.
+
+Sizing warning: `c7i-flex.large` has 2 vCPU. A webservice pod asking for 4 CPU cannot schedule on a 2 vCPU node. For a cluster-only check this is fine. For GitLab pods to run, lower webservice CPU request in values, or use larger app nodes later.
+
+## After EKS apply, on your machine
+
+```
+cd live/lab
+export TG_STATE_BUCKET="gitlab-hybrid-tfstate-962424860737"
+export RDS_PASSWORD="your-strong-password"
+export RAILS_DB_PASSWORD="your-strong-rails-password"
+export REDIS_AUTH_TOKEN="your-strong-redis-token"
+terragrunt init
+terragrunt plan
+terragrunt apply
+terragrunt output
+aws eks update-kubeconfig --region ap-south-1 --name gitlab-hybrid-lab-eks
+kubectl get nodes
+kubectl apply -f ../eks-storageclass-gitlab-gp3.yaml
+```
+
+Then install the ALB controller by Helm, using the IRSA role ARN from `terragrunt output` (eks_lb_controller_role_arn):
+
+```
+helm repo add eks https://aws.github.io/eks-charts
+helm repo update
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
+  -n kube-system \
+  --set clusterName=gitlab-hybrid-lab-eks \
+  --set serviceAccount.create=false \
+  --set serviceAccount.name=aws-load-balancer-controller \
+  --set region=ap-south-1 \
+  --set vpcId=<vpc_id_from_output>
+```
+
+Create the service account with annotation `eks.amazonaws.com/role-arn` set to that role ARN before, or with, that Helm install, depending on your Helm version. The controller pod then creates ALBs and NLBs from Ingress and Service manifests. Terragrunt does not run Helm, so this step is manual after apply, by design.
 
 This repo is Terragrunt only. Do not run Terraform directly from the repo root, and do not use a tfvars file. All values come from the environment folders below, and state is remote, managed by Terragrunt.
 
