@@ -43,4 +43,7 @@ inputs = {
 
   # Never hardcode this. Set RDS_PASSWORD in your shell before apply.
   rds_password = get_env("RDS_PASSWORD", "")
+
+  # EKS, Phase 2, prod: off for now, enable later when prod EKS is wanted.
+  eks_enabled = false
 }

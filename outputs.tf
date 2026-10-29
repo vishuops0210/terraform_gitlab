@@ -62,3 +62,58 @@ output "praefect_nlb_arn" {
   description = "ARN of the internal Praefect NLB."
   value       = aws_lb.praefect.arn
 }
+
+output "eks_cluster_name" {
+  description = "EKS cluster name, empty when EKS is disabled."
+  value       = var.eks_enabled ? aws_eks_cluster.main[0].name : ""
+}
+
+output "eks_cluster_endpoint" {
+  description = "EKS cluster endpoint, empty when EKS is disabled."
+  value       = var.eks_enabled ? aws_eks_cluster.main[0].endpoint : ""
+}
+
+output "eks_oidc_issuer" {
+  description = "EKS OIDC issuer, empty when EKS is disabled."
+  value       = var.eks_enabled ? aws_eks_cluster.main[0].identity[0].oidc[0].issuer : ""
+}
+
+output "eks_lb_controller_role_arn" {
+  description = "IRSA role ARN for AWS Load Balancer Controller, empty when EKS is disabled."
+  value       = var.eks_enabled ? aws_iam_role.lb_controller[0].arn : ""
+}
+
+output "eks_gitlab_rails_role_arn" {
+  description = "IRSA role ARN for GitLab Rails S3 access, empty when EKS is disabled."
+  value       = var.eks_enabled ? aws_iam_role.gitlab_rails[0].arn : ""
+}
+
+output "eks_gitlab_toolbox_role_arn" {
+  description = "IRSA role ARN for GitLab Toolbox S3 access, empty when EKS is disabled."
+  value       = var.eks_enabled ? aws_iam_role.gitlab_toolbox[0].arn : ""
+}
+
+output "gitlab_s3_buckets" {
+  description = "GitLab object storage bucket names, by type."
+  value       = { for k, b in aws_s3_bucket.gitlab : k => b.bucket }
+}
+
+output "gitlab_bucket_prefix" {
+  description = "Bucket prefix to use in values.yml REPLACE_BUCKET_PREFIX."
+  value       = "${var.project}-${var.environment}"
+}
+
+output "rails_rds_endpoint" {
+  description = "Rails RDS endpoint, for values.yml REPLACE_RAILS_RDS_ENDPOINT."
+  value       = aws_db_instance.rails.endpoint
+}
+
+output "rails_rds_address" {
+  description = "Rails RDS address, host only."
+  value       = aws_db_instance.rails.address
+}
+
+output "redis_primary_endpoint" {
+  description = "Redis primary endpoint, for values.yml REPLACE_REDIS_PRIMARY_ENDPOINT."
+  value       = aws_elasticache_replication_group.redis.primary_endpoint_address
+}

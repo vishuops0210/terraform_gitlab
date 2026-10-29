@@ -157,3 +157,92 @@ variable "rds_password" {
   type        = string
   sensitive   = true
 }
+
+# EKS, Phase 2. Gated by eks_enabled, so an environment does not get a
+# cluster until its terragrunt.hcl sets eks_enabled = true.
+variable "eks_enabled" {
+  description = "Create the EKS cluster and node groups. False means no EKS resources at all."
+  type        = bool
+  default     = false
+}
+
+variable "eks_version" {
+  description = "Kubernetes version for the EKS cluster."
+  type        = string
+  default     = "1.32"
+}
+
+variable "eks_app_node_count" {
+  description = "App node group size. Lab: 2 nodes, as confirmed by Vishal."
+  type        = number
+  default     = 2
+}
+
+variable "eks_ci_node_count" {
+  description = "CI node group size. Lab: 1 node, tainted, for runner jobs only."
+  type        = number
+  default     = 1
+}
+
+variable "eks_app_instance_type" {
+  description = "App node group instance type. Lab: c7i-flex.large, as confirmed by Vishal. Note: 2 vCPU nodes cannot run a webservice pod asking for 4 CPU, see eks.tf."
+  type        = string
+  default     = "c7i-flex.large"
+}
+
+variable "eks_ci_instance_type" {
+  description = "CI node group instance type. Lab: c7i-flex.large, as confirmed by Vishal."
+  type        = string
+  default     = "c7i-flex.large"
+}
+
+# Rails RDS, Phase 2. Separate from Praefect RDS.
+variable "rails_rds_instance_class" {
+  description = "RDS instance class for the Rails database."
+  type        = string
+  default     = "db.t4g.micro"
+}
+
+variable "rails_rds_allocated_storage" {
+  description = "RDS storage in GB for the Rails database."
+  type        = number
+  default     = 20
+}
+
+variable "rails_rds_storage_type" {
+  description = "RDS storage type for the Rails database."
+  type        = string
+  default     = "gp2"
+}
+
+variable "rails_rds_multi_az" {
+  description = "Enable Multi-AZ for the Rails RDS. Keep false for lab cost."
+  type        = bool
+  default     = false
+}
+
+variable "rails_rds_backup_retention_period" {
+  description = "RDS automated backup retention in days for the Rails database."
+  type        = number
+  default     = 0
+}
+
+variable "rails_db_password" {
+  description = "Master password for the Rails RDS, user gitlab. Set from Terragrunt inputs via the RAILS_DB_PASSWORD environment variable, never in git."
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "redis_node_type" {
+  description = "ElastiCache node type for GitLab Redis."
+  type        = string
+  default     = "cache.t4g.micro"
+}
+
+variable "redis_auth_token" {
+  description = "Auth token for GitLab Redis, TLS on. Set from Terragrunt inputs via the REDIS_AUTH_TOKEN environment variable, never in git."
+  type        = string
+  sensitive   = true
+  default     = ""
+}

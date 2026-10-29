@@ -1,0 +1,14 @@
+# StorageClass for GitLab toolbox persistence, values.yml uses gitlab-gp3.
+# This is NOT Terraform. Apply with kubectl after the EKS cluster is up
+# and the EBS CSI addon is running:
+#   kubectl apply -f eks-storageclass-gitlab-gp3.yaml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: gitlab-gp3
+provisioner: ebs.csi.aws.com
+parameters:
+  type: gp3
+  encrypted: "true"
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true

@@ -48,4 +48,16 @@ inputs = {
 
   # Never hardcode this. Set RDS_PASSWORD in your shell before apply.
   rds_password = get_env("RDS_PASSWORD", "")
+
+  # EKS, Phase 2, lab: app 2 nodes, CI 1 node, both c7i-flex.large.
+  eks_enabled            = true
+  eks_version            = "1.32"
+  eks_app_node_count     = 2
+  eks_ci_node_count      = 1
+  eks_app_instance_type  = "c7i-flex.large"
+  eks_ci_instance_type   = "c7i-flex.large"
+
+  # Rails RDS and Redis passwords, also from env, never in git.
+  rails_db_password = get_env("RAILS_DB_PASSWORD", "")
+  redis_auth_token  = get_env("REDIS_AUTH_TOKEN", "")
 }
