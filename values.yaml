@@ -1,0 +1,249 @@
+# GitLab chart 10.4.1 / GitLab EE 19.4.1 - LAB values, ready for Helm install.
+# Based on gitlab-eks-values-small.yml, with real lab endpoints filled in 2026-10-30.
+# ACM for *.tyagi.fun is Issued, so host is gitlab.tyagi.fun, not gitlab.opstree.dev.
+# Gitaly endpoint is internal praefect.internal:2305, plaintext, matching Ansible role.
+# Sizing reduced for c7i-flex.large 2 vCPU nodes: webservice request 1 CPU, Sidekiq 500m.
+# No passwords in this file. Secrets are created separately in namespace gitlab.
+global:
+  edition: ee
+  hpa:
+    apiVersion: autoscaling/v2
+  pdb:
+    apiVersion: policy/v1
+  batch:
+    cronJob:
+      apiVersion: batch/v1
+  nodeSelector:
+    workload: gitlab-app
+  hosts:
+    domain: tyagi.fun
+    https: true
+    gitlab:
+      name: gitlab.tyagi.fun
+  ingress:
+    enabled: false
+    configureCertmanager: false
+    tls:
+      enabled: false
+  gatewayApi:
+    enabled: false
+    installEnvoy: false
+    configureEnvoy: false
+    configureCertmanager: false
+  gitaly:
+    enabled: false
+    external:
+      - name: default
+        hostname: praefect.internal
+        port: 2305
+        tlsEnabled: false
+    authToken:
+      secret: praefect-external-token
+      key: token
+  praefect:
+    enabled: false
+  # shell authToken removed for lab, 2026-10-30. gitlab-shell is disabled below,
+  # HTTPS git only, ALB cannot carry SSH. Chart will auto-generate a shell secret
+  # if needed, no manual gitlab-shell-shared secret is required for this install.
+  psql:
+    host: gitlab-hybrid-lab-rails.c5cqyc2iyfb3.ap-south-1.rds.amazonaws.com
+    port: 5432
+    username: gitlab
+    database: gitlabhq_production
+    password:
+      secret: gitlab-db-password
+      key: password
+  redis:
+    host: master.gitlab-hybrid-lab-redis.nwmjwa.aps1.cache.amazonaws.com
+    port: 6379
+    scheme: rediss
+    auth:
+      enabled: true
+      secret: gitlab-redis-password
+      key: password
+  certificates:
+    customCAs:
+      - secret: aws-rds-ca
+  extraEnv:
+    PGSSLMODE: verify-full
+    PGSSLROOTCERT: /etc/ssl/certs/ca-certificates.crt
+    AWS_REGION: ap-south-1
+    AWS_DEFAULT_REGION: ap-south-1
+    AWS_STS_REGIONAL_ENDPOINTS: regional
+    AWS_EC2_METADATA_DISABLED: "true"
+  workhorse:
+    tls:
+      enabled: false
+  kas:
+    enabled: false
+  pages:
+    enabled: false
+  registry:
+    enabled: false
+  appConfig:
+    defaultProjectsFeatures:
+      containerRegistry: false
+    object_store:
+      enabled: true
+      proxy_download: true
+      connection:
+        secret: gitlab-rails-storage
+        key: connection
+    artifacts:
+      bucket: gitlab-hybrid-lab-artifacts
+    lfs:
+      bucket: gitlab-hybrid-lab-lfs
+    uploads:
+      bucket: gitlab-hybrid-lab-uploads
+    packages:
+      bucket: gitlab-hybrid-lab-packages
+    externalDiffs:
+      enabled: true
+      bucket: gitlab-hybrid-lab-mr-diffs
+    terraformState:
+      enabled: true
+      bucket: gitlab-hybrid-lab-terraform-state
+    ciSecureFiles:
+      enabled: true
+      bucket: gitlab-hybrid-lab-ci-secure-files
+    dependencyProxy:
+      enabled: false
+    agentPlanContent:
+      enabled: false
+    ciCatalogBundles:
+      enabled: false
+    backups:
+      bucket: gitlab-hybrid-lab-backups
+      tmpBucket: gitlab-hybrid-lab-restore-tmp
+  smtp:
+    # Disabled for lab, 2026-10-30, author has no SES SMTP credentials right now.
+    # GitLab will run without email sending: no password reset emails, no notification emails.
+    # Re-enable later by setting enabled true and adding gitlab-smtp secret with username and password keys.
+    enabled: false
+  email:
+    from: gitlab@tyagi.fun
+    reply_to: noreply@tyagi.fun
+
+installCertmanager: false
+nginx-ingress:
+  enabled: false
+prometheus:
+  install: false
+gitlab-runner:
+  install: false
+registry:
+  enabled: false
+
+gitlab:
+  webservice:
+    # Lab only, 2026-10-30: 1 replica only, to fit free account CPU and RAM.
+    # Was 2 to 4, second pod stayed Pending on 3x c7i-flex.large nodes.
+    # Set max to 1 as well, otherwise HPA will scale back to 2 and Pending again.
+    # Eviction fix, 2026-10-30 18:51 IST: node ip-10-10-11-171 evicted webservice
+    # for low memory, webservice was using 2985220Ki, request 2Gi, with
+    # workerProcesses 2. Drop to 1 worker, and lower requests, so actual use
+    # fits on a 4Gi c7i-flex.large node alongside Sidekiq, toolbox, exporter.
+    minReplicas: 1
+    maxReplicas: 1
+    workerProcesses: 1
+    hpa:
+      cpu:
+        targetType: Utilization
+        targetAverageUtilization: 75
+    maxUnavailable: 1
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        memory: 3Gi
+    service:
+      type: ClusterIP
+    serviceAccount:
+      enabled: true
+      create: false
+      name: gitlab-rails
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: webservice
+            release: gitlab
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: webservice
+            release: gitlab
+  sidekiq:
+    minReplicas: 2
+    maxReplicas: 4
+    concurrency: 20
+    hpa:
+      cpu:
+        targetType: Utilization
+        targetAverageUtilization: 75
+    maxUnavailable: 1
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        memory: 2Gi
+    serviceAccount:
+      enabled: true
+      create: false
+      name: gitlab-rails
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: sidekiq
+            release: gitlab
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: sidekiq
+            release: gitlab
+  migrations:
+    serviceAccount:
+      enabled: true
+      create: false
+      name: gitlab-rails
+  toolbox:
+    replicas: 1
+    serviceAccount:
+      enabled: true
+      create: false
+      name: gitlab-toolbox
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        memory: 2Gi
+    persistence:
+      enabled: true
+      storageClass: gitlab-gp3
+      size: 200Gi
+    backups:
+      objectStorage:
+        backend: s3
+      cron:
+        enabled: false
+        schedule: "0 20 * * *"
+        concurrencyPolicy: Forbid
+        extraArgs: --s3tool awscli
+        persistence:
+          enabled: true
+          storageClass: gitlab-gp3
+          size: 200Gi
+  gitlab-shell:
+    enabled: false

@@ -1,0 +1,49 @@
+# GitLab Runner values, lab, 2026-10-30
+# Release: gitlab-runner, namespace: gitlab, GitLab: https://gitlab.tyagi.fun
+# Runner token is NOT in this file. Pass it at install time with
+# --set runnerToken="$RUNNER_TOKEN", from the token you got in GitLab UI.
+# Do not commit a token in this file, do not paste it in chat.
+gitlabUrl: https://gitlab.tyagi.fun
+runnerToken: ""
+
+# Manager pod: run on app nodes only, not on CI node.
+# CI node is tainted gitlab-ci=true:NoSchedule, manager has no toleration,
+# so it will schedule on app nodes anyway. This nodeSelector makes it explicit.
+nodeSelector:
+  workload: gitlab-app
+
+# Service account for runner manager and job pods.
+# IRSA role from Terraform: gitlab-hybrid-lab-eks-runner-cache
+# Policy: only S3 bucket gitlab-hybrid-lab-runner-cache, for job cache.
+# SA name must be gitlab-runner, in namespace gitlab, to match that role trust.
+serviceAccount:
+  create: true
+  name: gitlab-runner
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::962424860737:role/gitlab-hybrid-lab-eks-runner-cache
+
+rbac:
+  create: true
+
+# Runner config, Kubernetes executor.
+# Manager watches GitLab, job pods are created per job on CI node, then deleted.
+runners:
+  config: |
+    [[runners]]
+      executor = "kubernetes"
+      [runners.kubernetes]
+        namespace = "gitlab"
+        image = "alpine:latest"
+        service_account = "gitlab-runner"
+        node_selector = { "workload" = "gitlab-ci" }
+        [runners.kubernetes.node_tolerations]
+          "gitlab-ci=true" = "NoSchedule"
+      [runners.cache]
+        Type = "s3"
+        [runners.cache.s3]
+          ServerAddress = "s3.ap-south-1.amazonaws.com"
+          BucketName = "gitlab-hybrid-lab-runner-cache"
+          BucketLocation = "ap-south-1"
+          Insecure = false
+          AuthenticationType = "iam"
+
