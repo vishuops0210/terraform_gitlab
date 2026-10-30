@@ -60,6 +60,8 @@ inputs = {
   # Rails RDS and Redis passwords, also from env, never in git.
   rails_db_password = get_env("RAILS_DB_PASSWORD", "")
   redis_auth_token  = get_env("REDIS_AUTH_TOKEN", "")
+  praefect_token = get_env("PRAEFECT_TOKEN", "")
+
 
   # ACM wildcard *.tyagi.fun, plus tyagi.fun, for ALB TLS on all apps.
   acm_enabled = true
