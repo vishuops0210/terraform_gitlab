@@ -235,9 +235,9 @@ variable "rails_db_password" {
 }
 
 variable "redis_node_type" {
-  description = "ElastiCache node type for GitLab Redis."
+  description = "ElastiCache node type for GitLab Redis. cache.t3.micro is the AWS Free Tier node type for ElastiCache, 750 hours per month for 12 months for new accounts. cache.t4g.micro was failing create in ap-south-1 for this free tier account, so lab uses t3.micro."
   type        = string
-  default     = "cache.t4g.micro"
+  default     = "cache.t3.micro"
 }
 
 variable "redis_auth_token" {
