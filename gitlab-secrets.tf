@@ -27,7 +27,6 @@ resource "aws_secretsmanager_secret" "gitlab_db_password" {
   name                    = "gitlab-db-password"
   description             = "GitLab Rails RDS password, for ESO, namespace gitlab"
   recovery_window_in_days = 0
-  tags                    = var.common_tags
 }
 
 resource "aws_secretsmanager_secret_version" "gitlab_db_password" {
@@ -39,7 +38,6 @@ resource "aws_secretsmanager_secret" "gitlab_redis_password" {
   name                    = "gitlab-redis-password"
   description             = "GitLab Redis auth token, for ESO, namespace gitlab"
   recovery_window_in_days = 0
-  tags                    = var.common_tags
 }
 
 resource "aws_secretsmanager_secret_version" "gitlab_redis_password" {
@@ -51,7 +49,6 @@ resource "aws_secretsmanager_secret" "gitlab_praefect_token" {
   name                    = "gitlab-praefect-token"
   description             = "Praefect external token, must match Ansible vault token, for ESO"
   recovery_window_in_days = 0
-  tags                    = var.common_tags
 }
 
 resource "aws_secretsmanager_secret_version" "gitlab_praefect_token" {
@@ -63,7 +60,6 @@ resource "aws_secretsmanager_secret" "gitlab_rails_storage" {
   name                    = "gitlab-rails-storage"
   description             = "GitLab S3 object storage connection, IRSA, for ESO"
   recovery_window_in_days = 0
-  tags                    = var.common_tags
 }
 
 resource "aws_secretsmanager_secret_version" "gitlab_rails_storage" {
@@ -75,7 +71,6 @@ resource "aws_secretsmanager_secret" "gitlab_rds_ca" {
   name                    = "gitlab-rds-ca"
   description             = "RDS CA bundle for ap-south-1, public CA, for ESO"
   recovery_window_in_days = 0
-  tags                    = var.common_tags
 }
 
 resource "aws_secretsmanager_secret_version" "gitlab_rds_ca" {
