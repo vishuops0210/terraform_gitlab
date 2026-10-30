@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: gitlab-rails
+  namespace: gitlab
+  labels:
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    meta.helm.sh/release-name: gitlab
+    meta.helm.sh/release-namespace: gitlab
+    eks.amazonaws.com/role-arn: arn:aws:iam::962424860737:role/gitlab-hybrid-lab-eks-gitlab-rails
