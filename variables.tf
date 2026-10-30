@@ -265,3 +265,11 @@ variable "acm_subject_alternative_names" {
   type        = list(string)
   default     = ["tyagi.fun"]
 }
+
+variable "praefect_token" {
+  description = "Praefect external token, must match Ansible vault token. From PRAEFECT_TOKEN env, sensitive, never commit."
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
