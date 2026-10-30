@@ -37,7 +37,11 @@ resource "aws_acm_certificate" "tyagi" {
     create_before_destroy = true
   }
 
+  # Tag value cannot contain *, AWS tag regex allows letters, numbers,
+  # space, and _ . : / = + - @ only. "*.tyagi.fun" as a tag fails ACM
+  # validation with tags.4.member.value, so use a plain name here.
+  # The domain itself is still *.tyagi.fun, only the tag is different.
   tags = {
-    Name = var.acm_domain
+    Name = "tyagi-fun-wildcard"
   }
 }
