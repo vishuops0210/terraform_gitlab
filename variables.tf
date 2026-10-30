@@ -246,3 +246,22 @@ variable "redis_auth_token" {
   sensitive   = true
   default     = ""
 }
+
+# ACM wildcard, for ALB TLS on all apps.
+variable "acm_enabled" {
+  description = "Create the ACM wildcard certificate. Lab true, prod false, so prod does not create a duplicate cert for the same domain."
+  type        = bool
+  default     = false
+}
+
+variable "acm_domain" {
+  description = "Main ACM domain, wildcard for all apps."
+  type        = string
+  default     = "*.tyagi.fun"
+}
+
+variable "acm_subject_alternative_names" {
+  description = "Extra names on the same ACM cert, for example the bare domain."
+  type        = list(string)
+  default     = ["tyagi.fun"]
+}

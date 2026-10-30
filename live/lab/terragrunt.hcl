@@ -18,13 +18,13 @@ inputs = {
   project     = "gitlab-hybrid"
   environment = "lab"
 
-  availability_zones = ["ap-south-1a", "ap-south-1b", "ap-south-1c"]
+  availability_zones = ["ap-south-1a", "ap-south-1b"]
 
-  gitaly_count   = 3
-  praefect_count = 3
+  gitaly_count   = 2
+  praefect_count = 2
 
   gitaly_instance_type   = "c7i-flex.large"
-  praefect_instance_type = "t8i.small"
+  praefect_instance_type = "c7i-flex.large"
 
   # Lab NAT: single NAT, for cost. Prod sets this to true for one NAT per AZ.
   nat_gateway_per_az = false
@@ -51,7 +51,7 @@ inputs = {
 
   # EKS, Phase 2, lab: app 2 nodes, CI 1 node, both c7i-flex.large.
   eks_enabled            = true
-  eks_version            = "1.36"
+  eks_version            = "1.32"
   eks_app_node_count     = 2
   eks_ci_node_count      = 1
   eks_app_instance_type  = "c7i-flex.large"
@@ -60,4 +60,7 @@ inputs = {
   # Rails RDS and Redis passwords, also from env, never in git.
   rails_db_password = get_env("RAILS_DB_PASSWORD", "")
   redis_auth_token  = get_env("REDIS_AUTH_TOKEN", "")
+
+  # ACM wildcard *.tyagi.fun, plus tyagi.fun, for ALB TLS on all apps.
+  acm_enabled = true
 }

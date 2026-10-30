@@ -24,6 +24,12 @@ What Terragrunt does NOT create for EKS:
 
 Sizing warning: `c7i-flex.large` has 2 vCPU. A webservice pod asking for 4 CPU cannot schedule on a 2 vCPU node. For a cluster-only check this is fine. For GitLab pods to run, lower webservice CPU request in values, or use larger app nodes later.
 
+## ACM wildcard, tyagi.fun
+
+Enabled in lab only, `acm_enabled = true`, prod false. Creates one ACM cert, `*.tyagi.fun` plus `tyagi.fun`, in `ap-south-1`, for ALB TLS on GitLab, ArgoCD, and future apps. Reuse its ARN from `terragrunt output` (acm_certificate_arn) in every Ingress, do not create a cert per app.
+
+Validation is DNS, manual on purpose, because it was not confirmed that tyagi.fun is in Route53 in this account. After apply, run `terragrunt output` and read `acm_validation_options`, add those CNAME records once at wherever tyagi.fun DNS is hosted, then ACM will issue the cert and auto renew it while those records stay. Until validation completes, the cert stays in PENDING_VALIDATION, and an ALB cannot use it yet, so add the CNAME records before creating an Ingress that references the ARN.
+
 ## After EKS apply, on your machine
 
 ```

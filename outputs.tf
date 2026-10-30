@@ -117,3 +117,13 @@ output "redis_primary_endpoint" {
   description = "Redis primary endpoint, for values.yml REPLACE_REDIS_PRIMARY_ENDPOINT."
   value       = aws_elasticache_replication_group.redis.primary_endpoint_address
 }
+
+output "acm_certificate_arn" {
+  description = "ACM wildcard certificate ARN, for ALB Ingress certificate-arn annotation, empty when ACM is disabled."
+  value       = var.acm_enabled ? aws_acm_certificate.tyagi[0].arn : ""
+}
+
+output "acm_validation_options" {
+  description = "ACM DNS validation CNAME records to add at the tyagi.fun DNS host, one per domain, empty when ACM is disabled."
+  value       = var.acm_enabled ? aws_acm_certificate.tyagi[0].domain_validation_options : []
+}

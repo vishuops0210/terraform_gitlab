@@ -46,4 +46,7 @@ inputs = {
 
   # EKS, Phase 2, prod: off for now, enable later when prod EKS is wanted.
   eks_enabled = false
+
+  # ACM, prod: off for now, so prod does not create a duplicate wildcard cert.
+  acm_enabled = false
 }
