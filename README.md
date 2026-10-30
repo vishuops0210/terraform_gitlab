@@ -9,7 +9,7 @@ This is infra only. GitLab and Praefect software is installed by Ansible after a
 Enabled by `eks_enabled`. Lab: true, app node group 2 nodes, CI node group 1 node, both `c7i-flex.large`. Prod: false for now.
 
 What Terragrunt creates for EKS:
-- EKS cluster 1.32, private nodes, public endpoint on for demo kubectl access
+- EKS cluster 1.36, private nodes, public endpoint on for demo kubectl access
 - App node group: label `workload=gitlab-app`, no taint, for webservice, Sidekiq, toolbox, runner manager
 - CI node group: label `workload=gitlab-ci`, taint `gitlab-ci=true:NoSchedule`, for runner job pods only
 - OIDC provider, and IRSA roles for EBS CSI, AWS Load Balancer Controller, External Secrets, GitLab Rails S3, GitLab Toolbox S3, and runner cache S3
