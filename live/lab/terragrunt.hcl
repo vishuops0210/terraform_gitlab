@@ -52,7 +52,7 @@ inputs = {
   # EKS, Phase 2, lab: app 2 nodes, CI 1 node, both c7i-flex.large.
   eks_enabled            = true
   eks_version            = "1.36"
-  eks_app_node_count     = 2
+  eks_app_node_count     = 4
   eks_ci_node_count      = 1
   eks_app_instance_type  = "c7i-flex.large"
   eks_ci_instance_type   = "c7i-flex.large"
