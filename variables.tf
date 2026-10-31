@@ -273,3 +273,16 @@ variable "praefect_token" {
   default     = ""
 }
 
+variable "smtp_username" {
+  description = "Brevo SMTP Login from Brevo SMTP Settings, not the Brevo account email. From BREVO_SMTP_USERNAME env, never in git."
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "smtp_password" {
+  description = "Brevo SMTP key, new rotated key. From BREVO_SMTP_PASSWORD env, sensitive, never in git."
+  type        = string
+  sensitive   = true
+  default     = ""
+}

@@ -52,15 +52,18 @@ inputs = {
   # EKS, Phase 2, lab: app 2 nodes, CI 1 node, both c7i-flex.large.
   eks_enabled            = true
   eks_version            = "1.36"
-  eks_app_node_count     = 4
+  eks_app_node_count     = 3
   eks_ci_node_count      = 1
-  eks_app_instance_type  = "c7i-flex.large"
+  eks_app_instance_type  = "m7i-flex.large"
   eks_ci_instance_type   = "c7i-flex.large"
 
   # Rails RDS and Redis passwords, also from env, never in git.
   rails_db_password = get_env("RAILS_DB_PASSWORD", "")
   redis_auth_token  = get_env("REDIS_AUTH_TOKEN", "")
   praefect_token = get_env("PRAEFECT_TOKEN", "")
+  smtp_username = get_env("BREVO_SMTP_USERNAME", "")
+  smtp_password = get_env("BREVO_SMTP_PASSWORD", "")
+
 
 
   # ACM wildcard *.tyagi.fun, plus tyagi.fun, for ALB TLS on all apps.

@@ -4,6 +4,9 @@
 # Gitaly endpoint is internal praefect.internal:2305, plaintext, matching Ansible role.
 # Sizing reduced for c7i-flex.large 2 vCPU nodes: webservice request 1 CPU, Sidekiq 500m.
 # No passwords in this file. Secrets are created separately in namespace gitlab.
+# SMTP: Brevo, enabled 2026-10-31. Password is in the gitlab-smtp secret (ESO),
+# never in this file. The user_name placeholder below must be replaced locally
+# with the Brevo SMTP Settings Login value, never sent in chat.
 global:
   edition: ee
   hpa:
@@ -116,10 +119,24 @@ global:
       bucket: gitlab-hybrid-lab-backups
       tmpBucket: gitlab-hybrid-lab-restore-tmp
   smtp:
-    # Disabled for lab, 2026-10-30, author has no SES SMTP credentials right now.
-    # GitLab will run without email sending: no password reset emails, no notification emails.
-    # Re-enable later by setting enabled true and adding gitlab-smtp secret with username and password keys.
-    enabled: false
+    # Brevo SMTP, enabled 2026-10-31 (was disabled 2026-10-30, no SES credentials).
+    # Password comes from the gitlab-smtp secret (key: password) via ESO.
+    # Never put the SMTP key in this file. The gitlab-smtp secret must exist
+    # and be Synced before Helm install/upgrade, or pods will fail to start.
+    # user_name must be the Brevo SMTP Settings Login value (SMTP & API page),
+    # NOT the Brevo account/profile email. Replace the placeholder locally only.
+    enabled: true
+    address: smtp-relay.brevo.com
+    port: 587
+    user_name: "c0ce8a001@smtp-brevo.com"
+    password:
+      secret: gitlab-smtp
+      key: password
+    authentication: "login"
+    starttls_auto: true
+    openssl_verify_mode: "peer"
+    domain: tyagi.fun
+    pool: true
   email:
     from: gitlab@tyagi.fun
     reply_to: noreply@tyagi.fun

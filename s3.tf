@@ -180,3 +180,17 @@ resource "aws_iam_role_policy_attachment" "runner_cache" {
   role       = aws_iam_role.runner_cache[0].name
   policy_arn = aws_iam_policy.runner_cache[0].arn
 }
+
+
+resource "aws_iam_user" "gitlab_s3" {
+  name = "${local.eks_name}-gitlab-s3"
+}
+
+resource "aws_iam_access_key" "gitlab_s3" {
+  user = aws_iam_user.gitlab_s3.name
+}
+
+resource "aws_iam_user_policy_attachment" "gitlab_s3" {
+  user       = aws_iam_user.gitlab_s3.name
+  policy_arn = aws_iam_policy.gitlab_s3[0].arn
+}

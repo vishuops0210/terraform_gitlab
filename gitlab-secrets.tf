@@ -17,11 +17,13 @@ data "http" "rds_ca" {
 
 locals {
   gitlab_s3_connection = yamlencode({
-    provider        = "AWS"
-    region          = "ap-south-1"
-    use_iam_profile = true
+    provider              = "AWS"
+    region                = "ap-south-1"
+    aws_access_key_id     = aws_iam_access_key.gitlab_s3.id
+    aws_secret_access_key = aws_iam_access_key.gitlab_s3.secret
   })
 }
+
 
 resource "aws_secretsmanager_secret" "gitlab_db_password" {
   name                    = "gitlab-db-password"
@@ -77,3 +79,18 @@ resource "aws_secretsmanager_secret_version" "gitlab_rds_ca" {
   secret_id     = aws_secretsmanager_secret.gitlab_rds_ca.id
   secret_string = data.http.rds_ca.response_body
 }
+
+resource "aws_secretsmanager_secret" "gitlab_smtp" {
+  name                    = "gitlab-smtp"
+  description             = "Brevo SMTP credentials, for ESO, namespace gitlab"
+  recovery_window_in_days = 0
+}
+
+resource "aws_secretsmanager_secret_version" "gitlab_smtp" {
+  secret_id     = aws_secretsmanager_secret.gitlab_smtp.id
+  secret_string = jsonencode({
+    username = var.smtp_username
+    password = var.smtp_password
+  })
+}
+
